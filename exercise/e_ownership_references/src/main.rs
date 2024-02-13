@@ -4,7 +4,7 @@
 fn main() {
     // This fancy stuff either gets the first argument as a String, or prints
     // usage and exits if an argument was not supplied to the program.
-    let mut arg: String = std::env::args().nth(1).unwrap_or_else(|| {
+    let mut arg: String = std::env::args().nth(2).unwrap_or_else(|| {
         println!("Please supply an argument to this program.");
         std::process::exit(-1);
     });
@@ -13,8 +13,18 @@ fn main() {
     // prints whether the contents of the String is plural or singular. Then uncomment and run this
     // code with `cargo run apple` and `cargo run apples'.  Hint: use `.ends_with("s")` on the
     // String reference
-    //
-    //inspect(&arg);
+
+    fn inspect(s: &str) {
+        println!("{}", s);
+
+        let plural_or_singular = if s.ends_with('s') {
+            "plural"
+        } else {
+            "singular"
+        };
+        println!("{}", plural_or_singular)
+    }
+    inspect(&arg);
 
     // 2. Write a function `change` that takes a *mutable* reference to a String and adds an "s" to
     // the String if it doesn't already end with "s". Then uncomment and run the code below with
