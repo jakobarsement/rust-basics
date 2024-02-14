@@ -13,16 +13,15 @@ fn main() {
     // prints whether the contents of the String is plural or singular. Then uncomment and run this
     // code with `cargo run apple` and `cargo run apples'.  Hint: use `.ends_with("s")` on the
     // String reference
+    println!("arg: {}", arg);
 
     fn inspect(s: &str) {
-        println!("{}", s);
-
         let plural_or_singular = if s.ends_with('s') {
             "plural"
         } else {
             "singular"
         };
-        println!("{}", plural_or_singular)
+        println!("plural or singular: {}", plural_or_singular)
     }
     inspect(&arg);
 
@@ -40,18 +39,22 @@ fn main() {
         s
     }
     change(&mut arg);
-    println!("I have many {}", arg);
+    println!("Change to plural if not: {}", arg);
 
     // 3. Write a function `eat` that accepts ownership of (consumes) a String and returns a bool
     // indicating whether or not the String both starts with a "b" AND contains an "a".
     // Hint 1: use `.starts_with("b")` and `.contains("a")`
     // Hint 2: `&&` is the boolean "AND" operator
-    //
-    //if eat(arg) {
-    //    println!("Might be bananas");
-    //} else {
-    //    println!("Not bananas");
-    //}
+
+    fn eat(s: String) -> bool {
+        s.contains('a') && s.starts_with('b')
+    }
+
+    if eat(arg) {
+        println!("Might be bananas");
+    } else {
+        println!("Not bananas");
+    }
 
     // Try running this program with "boat", "banana", and "grapes" as the arguments :-)
 
