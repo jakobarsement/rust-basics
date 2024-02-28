@@ -9,13 +9,13 @@
 
 enum Shot {
     Bullseye,
-    Hit(f32),
+    Hit(f64),
     Miss,
 }
 
 impl Shot {
     // Here is a method for the `Shot` enum you just defined.
-    fn points(self) {
+    fn points(self) -> i32 {
         // 1b. Implement this method to convert a Shot into points
         // - return 5 points if `self` is a `Shot::Bullseye`
         // - return 2 points if `self` is a `Shot::Hit(x)` where x < 3.0
@@ -25,10 +25,9 @@ impl Shot {
         match self {
             Shot::Bullseye => 5,
             Shot::Hit(x) if x < 3.0 => 2,
-            Shot::Hit(x) if x >= 3.0 => 1,
-            Shot::Miss => 0,
+            Shot::Hit(_) => 1,
             _ => 0,
-        };
+        }
     }
 }
 
@@ -46,14 +45,24 @@ fn main() {
     //      - Between 1.0 and 5.0 -- `Shot::Hit(value)`
     //      - Greater than 5.0 -- `Shot::Miss`
 
-    let amount_of_shots = arrow_coords.len();
+    for coord in arrow_coords {
+        let distance_off = coord.distance_from_center();
 
-    for i in 0..amount_of_shots {
-        println!("{:?}", arrow_coords[i].print_description());
+        println!("{:?}", coord.print_description());
+        let shot = match distance_off {
+            x if x < 1.0 => Shot::Bullseye,
+            x if x < 5.0 => Shot::Hit(x),
+            _ => Shot::Miss,
+        };
+        shots.push(shot)
     }
 
     let mut total = 0;
+
     // 3. Finally, loop through each shot in shots and add its points to total
+    for shot in shots {
+        total += shot.points();
+    }
 
     println!("Final point total is: {}", total);
 }
