@@ -46,8 +46,8 @@ fn main() {
     // to exit with a `Result<i32, Err>`.  Get the i32 out of the result and store it in a `sum`
     // variable.  Uncomment the println.  If you did 1a and 1b correctly, the sum should be 20.
     //
-    //let sum =
-    //println!("The child thread's expensive sum is {}", sum);
+    let sum = handle.join().expect("Error in `handle` thread");
+    println!("The child thread's expensive sum is {}", sum);
 
     // Time for some fun with threads and channels!  Though there is a primitive type of channel
     // in the std::sync::mpsc module, I recommend always using channels from the crossbeam crate,
