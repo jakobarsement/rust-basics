@@ -5,8 +5,9 @@ use std::thread;
 use std::time::Duration;
 
 fn expensive_sum(v: Vec<i32>) -> i32 {
+    println!("Child thread: Starting");
     pause_ms(500);
-    println!("Child thread: just about finished");
+    println!("Child thread: Finishing");
     // 1a. Between the .iter() and the .sum() add a .filter() with a closure to keep any even
     // number (`x % 2` will be 0 for even numbers).
     // 1b. Between the .filter() and the .sum() add a .map() with a closure to square the values
@@ -31,8 +32,8 @@ fn main() {
     // 2. Spawn a child thread and have it call `expensive_sum(my_vector)`.  Store the returned
     // join handle in a variable called `handle`. Once you've done this you should be able to run
     // the code and see the Child thread output in the middle of the main thread's letters
-    //
-    //let handle = ...
+
+    let handle = thread::spawn(|| expensive_sum(my_vector));
 
     // While the child thread is running, the main thread will also do some work
     for letter in vec!["a", "b", "c", "d", "e", "f"] {
