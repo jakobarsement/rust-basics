@@ -27,118 +27,148 @@ fn pause_ms(ms: u64) {
 }
 
 fn main() {
-    let my_vector = vec![2, 5, 1, 0, 4, 3];
+    // let my_vector = vec![2, 5, 1, 0, 4, 3];
 
-    // 2. Spawn a child thread and have it call `expensive_sum(my_vector)`.  Store the returned
-    // join handle in a variable called `handle`. Once you've done this you should be able to run
-    // the code and see the Child thread output in the middle of the main thread's letters
+    // // 2. Spawn a child thread and have it call `expensive_sum(my_vector)`.  Store the returned
+    // // join handle in a variable called `handle`. Once you've done this you should be able to run
+    // // the code and see the Child thread output in the middle of the main thread's letters
 
-    let handle = thread::spawn(|| expensive_sum(my_vector));
+    // let handle = thread::spawn(|| expensive_sum(my_vector));
 
-    // While the child thread is running, the main thread will also do some work
-    for letter in vec!["a", "b", "c", "d", "e", "f"] {
-        println!("Main thread: Letter {}", letter);
-        pause_ms(200);
-    }
+    // // While the child thread is running, the main thread will also do some work
+    // for letter in vec!["a", "b", "c", "d", "e", "f"] {
+    //     println!("Main thread: Letter {}", letter);
+    //     pause_ms(200);
+    // }
 
-    // 3. Let's retrieve the value returned by the child thread once it has exited.  Using the
-    // `handle` variable you stored the join handle in earlier, call .join() to wait for the thread
-    // to exit with a `Result<i32, Err>`.  Get the i32 out of the result and store it in a `sum`
-    // variable.  Uncomment the println.  If you did 1a and 1b correctly, the sum should be 20.
-    //
-    let sum = handle.join().expect("Error in `handle` thread");
-    println!("The child thread's expensive sum is {}", sum);
+    // // 3. Let's retrieve the value returned by the child thread once it has exited.  Using the
+    // // `handle` variable you stored the join handle in earlier, call .join() to wait for the thread
+    // // to exit with a `Result<i32, Err>`.  Get the i32 out of the result and store it in a `sum`
+    // // variable.  Uncomment the println.  If you did 1a and 1b correctly, the sum should be 20.
+    // //
+    // let sum = handle.join().expect("Error in `handle` thread");
+    // println!("The child thread's expensive sum is {}", sum);
 
-    // Bonus: Get child thread to take longer than main thread, as such the `sum` value will not yet be computed.
-    // What will happen in the program?
+    // // Bonus: Get child thread to take longer than main thread, as such the `sum` value will not yet be computed.
+    // // What will happen in the program?
 
-    // Answer: The main thread then waits on the child thread to finish before continuing execution. The .join()
-    // method ensures that.
+    // // Answer: The main thread then waits on the child thread to finish before continuing execution. The .join()
+    // // method ensures that.
 
-    // Time for some fun with threads and channels!  Though there is a primitive type of channel
-    // in the std::sync::mpsc module, I recommend always using channels from the crossbeam crate,
-    // which is what we will use here.
-    //
-    // 4. Uncomment the block comment below (Find and remove the `/*` and `*/`).  Examine how the
-    // flow of execution works.  Once you understand it, alter the values passed to the `pause_ms()`
-    // calls so that both the "Thread B" outputs occur before the "Thread A" outputs.
+    // // Time for some fun with threads and channels!  Though there is a primitive type of channel
+    // // in the std::sync::mpsc module, I recommend always using channels from the crossbeam crate,
+    // // which is what we will use here.
+    // //
+    // // 4. Uncomment the block comment below (Find and remove the `/*` and `*/`).  Examine how the
+    // // flow of execution works.  Once you understand it, alter the values passed to the `pause_ms()`
+    // // calls so that both the "Thread B" outputs occur before the "Thread A" outputs.
 
-    let (tx, rx) = channel::unbounded();
-    // Cloning a channel makes another variable connected to that end of the channel so that you can
-    // send it to another thread.
-    let tx2 = tx.clone();
+    // let (tx, rx) = channel::unbounded();
+    // // Cloning a channel makes another variable connected to that end of the channel so that you can
+    // // send it to another thread.
+    // let tx2 = tx.clone();
 
-    let handle_a = thread::spawn(move || {
-        pause_ms(0);
-        tx2.send("Thread A: 1").unwrap();
-        pause_ms(200);
-        tx2.send("Thread A: 2").unwrap();
-    });
+    // let handle_a = thread::spawn(move || {
+    //     pause_ms(0);
+    //     tx2.send("Thread A: 1").unwrap();
+    //     pause_ms(200);
+    //     tx2.send("Thread A: 2").unwrap();
+    // });
 
-    pause_ms(100); // Make sure Thread A has time to get going before we spawn Thread B
+    // pause_ms(100); // Make sure Thread A has time to get going before we spawn Thread B
 
-    let handle_b = thread::spawn(move || {
-        pause_ms(0);
-        tx.send("Thread B: 1").unwrap();
-        pause_ms(200);
-        tx.send("Thread B: 2").unwrap();
-    });
+    // let handle_b = thread::spawn(move || {
+    //     pause_ms(0);
+    //     tx.send("Thread B: 1").unwrap();
+    //     pause_ms(200);
+    //     tx.send("Thread B: 2").unwrap();
+    // });
 
-    // Using a Receiver channel as an iterator is a convenient way to get values until the channel
-    // gets closed.  A Receiver channel is automatically closed once all Sender channels have been
-    // closed.  Both our threads automatically close their Sender channels when they exit and the
-    // destructors for the channels get automatically called.
-    for msg in rx {
-        println!("Main thread: Received {}", msg);
-    }
+    // // Using a Receiver channel as an iterator is a convenient way to get values until the channel
+    // // gets closed.  A Receiver channel is automatically closed once all Sender channels have been
+    // // closed.  Both our threads automatically close their Sender channels when they exit and the
+    // // destructors for the channels get automatically called.
+    // for msg in rx {
+    //     println!("Main thread: Received {}", msg);
+    // }
 
-    // Join the child threads for good hygiene.
-    handle_a.join().unwrap();
-    handle_b.join().unwrap();
+    // // Join the child threads for good hygiene.
+    // handle_a.join().unwrap();
+    // handle_b.join().unwrap();
 
-    // Challenge 1: Make two child threads and give them each a sending end to a channel. From the
-    // child threads, loop through several values and print each out and then send it to the channel.
-    // On the main thread print out the values you receive. Close the sending side in the main
-    // thread by calling `drop(tx)` (assuming you named your sender channel variable `tx`).  Join
-    // the child threads.
-    //-------------------------------------------------------------
+    // // Challenge 1: Make two child threads and give them each a sending end to a channel. From the
+    // // child threads, loop through several values and print each out and then send it to the channel.
+    // // On the main thread print out the values you receive. Close the sending side in the main
+    // // thread by calling `drop(tx)` (assuming you named your sender channel variable `tx`).  Join
+    // // the child threads.
+    // //-------------------------------------------------------------
+    // println!("----------------------------- Begin Challenge 1 -----------------------------");
+    // // Send values through first channel's sender
+    // let (sender, receiver) = channel::unbounded();
+    // let sender1 = sender.clone();
+    // let handle_1 = thread::spawn(|| {
+    //     for el in [1, 2, 3, 4, 5] {
+    //         println!("Sending {} through 1st thread", el);
+    //         pause_ms(300);
+    //         sender1.send(el).expect("Challenge 1 sender1 errored...");
+    //     }
+    //     drop(sender1);
+    // });
 
-    // Send values through first channel's sender
-    let (sender, receiver) = channel::unbounded();
-    let sender1 = sender.clone();
-    let handle_1 = thread::spawn(|| {
-        for el in [1, 2, 3, 4, 5] {
-            println!("Sending {} through 1st thread", el);
-            pause_ms(300);
-            sender1.send(el).expect("sender1 errored...");
-        }
-        drop(sender1);
-    });
+    // // Send values through second channel's sender
+    // let sender2 = sender.clone();
+    // let handle_2 = thread::spawn(move || {
+    //     for el in [51, 52, 53, 54, 55] {
+    //         println!("Sending {} through 2nd thread", el);
+    //         pause_ms(300);
+    //         sender2.send(el).expect("Challenge 1 sender2 errored...");
+    //     }
+    //     drop(sender2);
+    // });
+    // handle_1.join().expect("join() failed for Challenge 1 handle_1");
+    // handle_2.join().expect("join() failed for Challenge 1 handle_2");
 
-    // Send values through second channel's sender
-    let sender2 = sender.clone();
-    let handle_2 = thread::spawn(move || {
-        for el in [51, 52, 53, 54, 55] {
-            println!("Sending {} through 2nd thread", el);
-            pause_ms(300);
-            sender2.send(el).expect("sender2 errored...");
-        }
-        drop(sender2);
-    });
-    handle_1.join().expect("join() failed for handle_1");
-    handle_2.join().expect("join() failed for handle_2");
-    drop(sender);
-
-    for value in receiver {
-        println!("Exercise, received2: {}", value);
-    }
+    // for value in receiver {
+    //     println!("Exercise, received2: {}", value);
+    // }
 
     // Challenge 2: Make two child threads and give them each a receiving end to a channel.  From the
-    // main thread loop through several values and print each out and then send it to the channel.
+    // main thread, loop through several values and print each out and then send it to the channel.
     // On the child threads print out the values you receive. Close the sending side in the main
     // thread by calling `drop(tx)` (assuming you named your sender channel variable `tx`).  Join
     // the child threads.
     //-------------------------------------------------------------
+    println!("----------------------------- Begin Challenge 2 -----------------------------");
+
+    let (sender, receiver) = channel::unbounded();
+
+    let receiver1 = receiver.clone();
+    let handle_1 = thread::spawn(move || {
+        for value in receiver1 {
+            println!("{value}");
+        }
+    });
+
+    let receiver2 = receiver.clone();
+    let handle_2 = thread::spawn(move || {
+        for value in receiver2 {
+            println!("{value}");
+        }
+    });
+
+    for value in [101, 102, 103, 104] {
+        sender
+            .send(value)
+            .expect("Challenge 2 sender threw an error...");
+        pause_ms(200);
+    }
+    drop(sender);
+    handle_1
+        .join()
+        .expect("join() failed for Challenge 2 handle_1");
+    handle_2
+        .join()
+        .expect("join() failed for Challenge 2 handle_2");
 
     println!("Main thread: Exiting.");
 }
